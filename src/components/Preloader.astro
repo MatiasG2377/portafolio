@@ -8,13 +8,12 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = getContent(lang);
-const [firstName, ...rest] = site.name.split(' ');
 ---
 
 <div id="preloader" class="preloader" hidden>
   <span class="loader-status">{t.loader_status}</span>
 
-  <span class="loader-name">{firstName} / {rest.join(' ')}</span>
+  <span class="loader-name">{site.name}</span>
 
   <div class="loader-bar">
     <div class="loader-fill"></div>
