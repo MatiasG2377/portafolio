@@ -1,0 +1,111 @@
+---
+import { getContent, type Lang } from '../i18n/ui';
+import { site } from '../config';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = getContent(lang);
+const [firstName, ...rest] = site.name.split(' ');
+---
+
+<div id="preloader" class="preloader" hidden>
+  <span class="loader-status">{t.loader_status}</span>
+
+  <span class="loader-name">{firstName} / {rest.join(' ')}</span>
+
+  <div class="loader-bar">
+    <div class="loader-fill"></div>
+  </div>
+
+  <span class="loader-tagline">{t.loader_tagline}</span>
+</div>
+
+<script>
+  const preloader = document.getElementById('preloader');
+
+  if (preloader) {
+    const seen = sessionStorage.getItem('brutLoaderShown');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (seen || reduced) {
+      preloader.remove();
+    } else {
+      sessionStorage.setItem('brutLoaderShown', '1');
+      preloader.hidden = false;
+      document.body.style.overflow = 'hidden';
+
+      setTimeout(() => {
+        preloader.classList.add('done');
+        document.body.style.overflow = '';
+        preloader.addEventListener('transitionend', () => preloader.remove(), { once: true });
+      }, 2000);
+    }
+  }
+</script>
+
+<style>
+  .preloader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    padding: 24px;
+    background: var(--color-ink);
+    color: var(--color-cream);
+    transition: transform 0.5s cubic-bezier(0.7, 0, 0.3, 1);
+  }
+
+  .preloader[hidden] {
+    display: none;
+  }
+
+  .preloader.done {
+    transform: translateY(-100%);
+  }
+
+  .loader-status {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-accent);
+  }
+
+  .loader-status::after {
+    content: '_';
+    animation: brutBlink 0.8s step-end infinite;
+  }
+
+  .loader-name {
+    font-size: clamp(36px, 9vw, 96px);
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 0.9;
+    text-align: center;
+  }
+
+  .loader-bar {
+    width: min(420px, 80vw);
+    height: 16px;
+    border: 3px solid var(--color-cream);
+  }
+
+  .loader-fill {
+    height: 100%;
+    background: var(--color-accent);
+    animation: brutLoadBar 2s cubic-bezier(0.6, 0, 0.2, 1) forwards;
+  }
+
+  .loader-tagline {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    text-align: center;
+  }
+</style>

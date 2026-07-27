@@ -1,0 +1,129 @@
+/* ===== Design tokens ===== */
+:root {
+  --color-cream: #FAFAF5;
+  --color-ink: #0A0A0A;
+  --color-accent: #7C3AED;
+
+  --font-display: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --border: 3px solid var(--color-ink);
+  --border-thin: 2px solid var(--color-ink);
+
+  --section-pad-y: clamp(48px, 7vw, 90px);
+  --section-pad-x: clamp(16px, 4vw, 48px);
+
+  --stripes: repeating-linear-gradient(
+    45deg,
+    var(--color-ink) 0px,
+    var(--color-ink) 2px,
+    transparent 2px,
+    transparent 14px
+  );
+}
+
+/* ===== Reset ===== */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  /* clip (no hidden): recorta desbordes laterales sin convertir el body
+     en contenedor de scroll, que rompería el nav sticky. */
+  overflow-x: clip;
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+button { font: inherit; cursor: pointer; color: inherit; }
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-ink);
+}
+
+h1, h2, h3, p { margin: 0; }
+
+/* ===== Utilidades reusables ===== */
+.section {
+  border-bottom: var(--border);
+  padding: var(--section-pad-y) var(--section-pad-x);
+}
+
+/* El nav es sticky: sin esto el salto por ancla deja el título
+   de la sección tapado debajo de la barra. */
+[id] {
+  scroll-margin-top: 80px;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.stripes {
+  background-image: var(--stripes);
+}
+
+/* ===== Keyframes (animaciones) ===== */
+@keyframes brutLoadBar {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+@keyframes brutBlink {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+
+@keyframes brutMarquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes brutRevealY {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes brutRevealX {
+  from { opacity: 0; transform: translateX(-32px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ===== Animaciones al hacer scroll (progressive enhancement) ===== */
+@supports (animation-timeline: view()) {
+  [data-reveal] {
+    animation: brutRevealY 0.6s cubic-bezier(0.7, 0, 0.3, 1) both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 32%;
+  }
+
+  [data-reveal-x] {
+    animation: brutRevealX 0.6s cubic-bezier(0.7, 0, 0.3, 1) both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 28%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  [data-reveal], [data-reveal-x] {
+    animation: none !important;
+  }
+}

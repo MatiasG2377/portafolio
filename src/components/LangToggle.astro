@@ -1,0 +1,39 @@
+---
+interface Props {
+  lang: 'en' | 'es';
+}
+
+const { lang } = Astro.props;
+---
+
+<div class="lang-toggle">
+  <a href="/es/" class:list={['lang-btn', { active: lang === 'es' }]}>ES</a>
+  <a href="/" class:list={['lang-btn', { active: lang === 'en' }]}>EN</a>
+</div>
+
+<style>
+  .lang-toggle {
+    display: flex;
+    border: var(--border-thin);
+    flex-shrink: 0;
+  }
+
+  .lang-btn {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 7px 11px;
+    text-decoration: none;
+    background: var(--color-cream);
+    color: var(--color-ink);
+  }
+
+  .lang-btn:last-child {
+    border-left: var(--border-thin);
+  }
+
+  .lang-btn.active {
+    background: var(--color-accent);
+  }
+</style>

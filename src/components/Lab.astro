@@ -1,0 +1,74 @@
+---
+import SectionHeader from './SectionHeader.astro';
+import { getContent, tr, type Lang } from '../i18n/ui';
+import { labDomains } from '../data/lab';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = getContent(lang);
+---
+
+<section id="lab" class="section">
+  <SectionHeader id="lab" eyebrow={t.sec_lab} title={t.lab_h} subtitle={t.lab_sub} />
+
+  <div class="lab-grid">
+    {labDomains.map((d) => (
+      <div class="lab-cell" data-reveal>
+        <span class="lab-status">{tr(d.status, lang)}</span>
+        <span class="lab-title">{tr(d.title, lang)}</span>
+        <p class="lab-desc">{tr(d.desc, lang)}</p>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  /* auto-fit: las celdas rellenan siempre la fila completa,
+     así el borde derecho nunca queda a media línea. */
+  .lab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+    border-top: var(--border);
+    border-left: var(--border);
+  }
+
+  .lab-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 24px 20px;
+    border-right: var(--border);
+    border-bottom: var(--border);
+    transition: background 0.15s ease;
+  }
+
+  .lab-cell:hover {
+    background: var(--color-accent);
+  }
+
+  .lab-status {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: var(--color-ink);
+    color: var(--color-cream);
+    padding: 3px 8px;
+    width: fit-content;
+  }
+
+  .lab-title {
+    font-size: 17px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .lab-desc {
+    font-size: 13.5px;
+    font-weight: 500;
+    line-height: 1.55;
+  }
+</style>

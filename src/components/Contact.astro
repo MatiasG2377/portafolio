@@ -1,0 +1,108 @@
+---
+import { getContent, type Lang } from '../i18n/ui';
+import { sectionNumber } from '../data/sections';
+import { site } from '../config';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = getContent(lang);
+
+// Solo se pintan los botones que tienen enlace en config.ts.
+const socials = [
+  { label: 'GitHub ↗', href: site.github, download: false },
+  { label: 'LinkedIn ↗', href: site.linkedin, download: false },
+  { label: `${t.resume} ↓`, href: site.resume, download: true },
+].filter((s) => s.href);
+---
+
+<section id="contact" class="contact">
+  <span class="contact-eyebrow">{sectionNumber('contact')} / {t.sec_contact}</span>
+
+  <h2 class="contact-h">
+    <span>{t.contact_h1}</span>
+    <span>{t.contact_h2}</span>
+  </h2>
+
+  <a class="contact-email" href={`mailto:${site.email}`}>{site.email}</a>
+
+  <div class="socials">
+    {socials.map((s, i) => (
+      <a
+        class:list={['social', { 'social-inverted': i % 2 === 1 }]}
+        href={s.href}
+        download={s.download || undefined}
+        target={s.download ? undefined : '_blank'}
+        rel={s.download ? undefined : 'noopener noreferrer'}
+      >
+        {s.label}
+      </a>
+    ))}
+  </div>
+</section>
+
+<style>
+  .contact {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 22px;
+    padding: clamp(56px, 8vw, 110px) clamp(16px, 4vw, 48px);
+    background: var(--color-ink);
+    color: var(--color-cream);
+  }
+
+  .contact-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    background: var(--color-accent);
+    color: var(--color-ink);
+    padding: 4px 10px;
+  }
+
+  .contact-h {
+    display: flex;
+    flex-direction: column;
+    font-size: clamp(28px, 4.6vw, 52px);
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+
+  .contact-email {
+    font-size: clamp(18px, 2.4vw, 24px);
+    font-weight: 800;
+    color: var(--color-accent);
+    text-decoration: none;
+    border-bottom: 3px solid var(--color-accent);
+  }
+
+  .socials {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .social {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 10px 18px;
+    border: 2px solid var(--color-cream);
+    background: var(--color-cream);
+    color: var(--color-ink);
+    margin-left: -2px;
+  }
+
+  .social-inverted {
+    background: var(--color-ink);
+    color: var(--color-cream);
+  }
+</style>

@@ -1,0 +1,228 @@
+---
+import SectionHeader from './SectionHeader.astro';
+import { getContent, tr, type Lang } from '../i18n/ui';
+import { projects } from '../data/projects';
+import { domains } from '../data/domains';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = getContent(lang);
+
+// Solo se muestran los chips de dominios que algún proyecto usa,
+// en el orden definido en domains.ts. Añadir/quitar proyectos
+// añade o quita el chip automáticamente.
+const usedDomains = domains.filter((d) => projects.some((p) => p.domain === d.key));
+---
+
+<section id="projects" class="section">
+  <SectionHeader id="projects" eyebrow={t.sec_projects} title={t.projects_h} />
+
+  {usedDomains.length > 1 && (
+    <div class="filters">
+      <button type="button" class="chip active" data-filter="all">{t.filter_all}</button>
+      {usedDomains.map((d) => (
+        <button type="button" class="chip" data-filter={d.key}>{tr(d.label, lang)}</button>
+      ))}
+    </div>
+  )}
+
+  <div class="cards">
+    {projects.map((p) => (
+      <article class="card" data-domain={p.domain} data-reveal>
+        <div class:list={['card-thumb', { stripes: !p.image }]}>
+          {p.image ? (
+            <img src={p.image} alt={tr(p.title, lang)} loading="lazy" />
+          ) : (
+            <span class="card-thumb-caption">{t.project_shot}</span>
+          )}
+        </div>
+
+        <div class="card-body">
+          <span class="card-domain">{tr(domains.find((d) => d.key === p.domain)!.label, lang)}</span>
+
+          <h3 class="card-title">
+            {p.url ? (
+              <a href={p.url} target="_blank" rel="noopener noreferrer">{tr(p.title, lang)} ↗</a>
+            ) : (
+              tr(p.title, lang)
+            )}
+          </h3>
+
+          <p class="card-desc">{tr(p.desc, lang)}</p>
+
+          <div class="card-tags">
+            {p.tags.map((tag) => (
+              <span class="card-tag">{tag}</span>
+            ))}
+          </div>
+        </div>
+      </article>
+    ))}
+  </div>
+
+  <p class="projects-empty" hidden>{t.projects_empty}</p>
+</section>
+
+<script>
+  const section = document.getElementById('projects');
+
+  if (section) {
+    const chips = section.querySelectorAll<HTMLButtonElement>('.chip');
+    const cards = section.querySelectorAll<HTMLElement>('.card');
+    const empty = section.querySelector<HTMLElement>('.projects-empty');
+
+    chips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        const selected = chip.dataset.filter;
+        let shown = 0;
+
+        chips.forEach((c) => c.classList.toggle('active', c === chip));
+        cards.forEach((card) => {
+          const visible = selected === 'all' || card.dataset.domain === selected;
+          card.hidden = !visible;
+          if (visible) shown++;
+        });
+
+        if (empty) empty.hidden = shown > 0;
+      });
+    });
+  }
+</script>
+
+<style>
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 0 32px -2px;
+  }
+
+  .chip {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 9px 16px;
+    border: var(--border-thin);
+    background: var(--color-cream);
+    color: var(--color-ink);
+    margin: -2px 0 0 -2px;
+  }
+
+  .chip.active {
+    background: var(--color-ink);
+    color: var(--color-cream);
+  }
+
+  /* auto-fill (no auto-fit): con un solo proyecto la card conserva
+     su ancho de columna en vez de estirarse por toda la pantalla.
+     min(300px, 100%) evita que la pista fuerce scroll horizontal
+     en pantallas de menos de ~330px. */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+    gap: 24px;
+    padding-right: 8px;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    background: var(--color-cream);
+    border: var(--border);
+    box-shadow: 8px 8px 0 var(--color-ink);
+  }
+
+  .card[hidden] {
+    display: none;
+  }
+
+  .card-thumb {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    border-bottom: var(--border);
+    overflow: hidden;
+  }
+
+  .card-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .card-thumb-caption {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    background: var(--color-cream);
+    border: var(--border-thin);
+    padding: 4px 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 22px;
+  }
+
+  .card-domain {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .card-title {
+    font-size: 19px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .card-title a {
+    text-decoration: none;
+  }
+
+  .card-title a:hover {
+    background: var(--color-accent);
+  }
+
+  .card-desc {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.55;
+  }
+
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -2px 0 0 -2px;
+  }
+
+  .card-tag {
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border: var(--border-thin);
+    margin: -2px 0 0 -2px;
+  }
+
+  .projects-empty {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-top: 32px;
+  }
+
+  .projects-empty[hidden] {
+    display: none;
+  }
+</style>

@@ -1,0 +1,31 @@
+---
+import { getContent, type Lang } from '../i18n/ui';
+import { site } from '../config';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = getContent(lang);
+---
+
+<footer class="footer">
+  <span>© {site.year} {site.name.toUpperCase()}</span>
+  <span>{t.footer_tag}</span>
+</footer>
+
+<style>
+  .footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 24px clamp(16px, 4vw, 48px) 36px;
+    background: var(--color-ink);
+    color: var(--color-cream);
+    border-top: 3px solid var(--color-cream);
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+</style>

@@ -1,0 +1,75 @@
+---
+import SectionHeader from './SectionHeader.astro';
+import { getContent, tr, type Lang } from '../i18n/ui';
+import { focusItems } from '../data/focus';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = getContent(lang);
+---
+
+<section id="focus" class="section">
+  <SectionHeader id="focus" eyebrow={t.sec_focus} title={t.focus_h} />
+
+  <div class="focus-list">
+    {focusItems.map((item, i) => (
+      <div class="focus-row" data-reveal-x>
+        <span class="focus-n">{String(i + 1).padStart(2, '0')}</span>
+        <span class="focus-title">{tr(item.title, lang)}</span>
+        <span class="focus-desc">{tr(item.desc, lang)}</span>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .focus-list {
+    border-top: var(--border);
+  }
+
+  .focus-row {
+    display: grid;
+    grid-template-columns: 70px minmax(180px, 300px) 1fr;
+    align-items: center;
+    gap: 20px;
+    padding: 24px 0;
+    border-bottom: var(--border);
+    transition: background 0.15s ease;
+  }
+
+  .focus-row:hover {
+    background: var(--color-accent);
+  }
+
+  .focus-n {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .focus-title {
+    font-size: 19px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .focus-desc {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.55;
+  }
+
+  @media (max-width: 768px) {
+    .focus-row {
+      grid-template-columns: 50px 1fr;
+      gap: 8px 16px;
+    }
+
+    .focus-desc {
+      grid-column: 2;
+    }
+  }
+</style>

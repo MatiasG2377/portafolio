@@ -1,0 +1,45 @@
+---
+import { getContent, type Lang } from '../i18n/ui';
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = getContent(lang);
+---
+
+<div class="ticker">
+  <div class="ticker-track">
+    <span>{t.ticker.repeat(3)}</span>
+    <span aria-hidden="true">{t.ticker.repeat(3)}</span>
+  </div>
+</div>
+
+<style>
+  .ticker {
+    overflow: hidden;
+    white-space: nowrap;
+    background: var(--color-ink);
+    border-bottom: var(--border);
+    padding: 8px 0;
+  }
+
+  .ticker-track {
+    display: inline-flex;
+    animation: brutMarquee 28s linear infinite;
+  }
+
+  .ticker-track span {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-accent);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ticker-track {
+      animation: none;
+    }
+  }
+</style>

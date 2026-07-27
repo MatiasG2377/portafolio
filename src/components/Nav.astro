@@ -1,0 +1,224 @@
+---
+import LangToggle from './LangToggle.astro';
+import { getContent, type Lang } from '../i18n/ui';
+import { sectionOrder, type SectionId } from '../data/sections';
+import { site } from '../config';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = getContent(lang);
+const home = lang === 'es' ? '/es/' : '/';
+
+// El nav sigue el orden de sections.ts: reordenar allí reordena aquí.
+const navLabels: Record<SectionId, string> = {
+  about: t.nav_about,
+  focus: t.nav_focus,
+  lab: t.nav_lab,
+  projects: t.nav_projects,
+  journey: t.nav_journey,
+  contact: t.nav_contact,
+};
+---
+
+<nav class="nav" data-open="false">
+  <a class="wordmark" href={home}>{site.name}</a>
+
+  <div class="nav-links" id="nav-menu">
+    {sectionOrder.map((id) => (
+      <a href={`#${id}`} class:list={{ 'nav-contact': id === 'contact' }}>{navLabels[id]}</a>
+    ))}
+  </div>
+
+  <div class="nav-actions">
+    <LangToggle lang={lang} />
+
+    <button
+      type="button"
+      class="burger"
+      aria-controls="nav-menu"
+      aria-expanded="false"
+      aria-label={t.nav_menu_open}
+      data-label-open={t.nav_menu_open}
+      data-label-close={t.nav_menu_close}
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+</nav>
+
+<script>
+  const nav = document.querySelector<HTMLElement>('.nav');
+  const burger = nav?.querySelector<HTMLButtonElement>('.burger');
+  const menu = nav?.querySelector<HTMLElement>('.nav-links');
+
+  if (nav && burger && menu) {
+    const setOpen = (open: boolean) => {
+      nav.dataset.open = String(open);
+      burger.setAttribute('aria-expanded', String(open));
+      burger.setAttribute(
+        'aria-label',
+        (open ? burger.dataset.labelClose : burger.dataset.labelOpen) ?? '',
+      );
+    };
+
+    burger.addEventListener('click', () => setOpen(nav.dataset.open !== 'true'));
+
+    // Al saltar a una sección el panel debe cerrarse solo.
+    menu.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('a')) setOpen(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && nav.dataset.open === 'true') {
+        setOpen(false);
+        burger.focus();
+      }
+    });
+
+    // Si se ensancha la ventana con el panel abierto, volver al estado de escritorio.
+    const desktop = window.matchMedia('(min-width: 1024px)');
+    desktop.addEventListener('change', (e) => {
+      if (e.matches) setOpen(false);
+    });
+  }
+</script>
+
+<style>
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: clamp(10px, 2vw, 16px);
+    padding: 18px clamp(16px, 4vw, 48px);
+    background: var(--color-cream);
+    border-bottom: var(--border);
+  }
+
+  .wordmark {
+    text-decoration: none;
+    color: var(--color-ink);
+    font-size: clamp(15px, 3.5vw, 18px);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    flex-shrink: 0;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: clamp(10px, 2vw, 20px);
+  }
+
+  .nav-links a {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--color-ink);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .nav-contact {
+    background: var(--color-ink);
+    color: var(--color-cream) !important;
+    padding: 8px 16px;
+  }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: clamp(8px, 2vw, 16px);
+    flex-shrink: 0;
+  }
+
+  .burger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 42px;
+    height: 38px;
+    padding: 0 8px;
+    background: var(--color-cream);
+    border: var(--border-thin);
+  }
+
+  .burger span {
+    display: block;
+    height: 3px;
+    background: var(--color-ink);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  /* Panel desplegable bajo la barra. Debajo de 1024px los 6 enlaces
+     no caben sin apretujarse (en ES son más largos que en EN). */
+  @media (max-width: 1023px) {
+    .burger {
+      display: flex;
+    }
+
+    .nav-links {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      background: var(--color-cream);
+      border-bottom: var(--border);
+      max-height: calc(100dvh - 100%);
+      overflow-y: auto;
+    }
+
+    .nav[data-open='false'] .nav-links {
+      display: none;
+    }
+
+    .nav-links a {
+      padding: 16px clamp(16px, 4vw, 48px);
+      font-size: 15px;
+      border-top: var(--border-thin);
+    }
+
+    .nav-links a:active {
+      background: var(--color-accent);
+    }
+
+    .nav-contact {
+      padding: 16px clamp(16px, 4vw, 48px);
+    }
+
+    .nav[data-open='true'] .burger {
+      background: var(--color-accent);
+    }
+
+    .nav[data-open='true'] .burger span:first-child {
+      transform: translateY(8px) rotate(45deg);
+    }
+
+    .nav[data-open='true'] .burger span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .nav[data-open='true'] .burger span:last-child {
+      transform: translateY(-8px) rotate(-45deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .burger span {
+      transition: none;
+    }
+  }
+</style>

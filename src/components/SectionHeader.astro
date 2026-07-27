@@ -1,0 +1,40 @@
+---
+import { sectionNumber, type SectionId } from '../data/sections';
+
+interface Props {
+  id: SectionId;
+  eyebrow: string;
+  title: string;
+  subtitle?: string;
+}
+
+const { id, eyebrow, title, subtitle } = Astro.props;
+---
+
+<div class="section-header">
+  <span class="eyebrow">{sectionNumber(id)} / {eyebrow}</span>
+  <h2 class="section-title">{title}</h2>
+  {subtitle && <p class="section-sub">{subtitle}</p>}
+</div>
+
+<style>
+  .section-header {
+    margin-bottom: 36px;
+  }
+
+  .section-title {
+    font-size: clamp(26px, 3.6vw, 42px);
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 1.15;
+    margin-top: 14px;
+  }
+
+  .section-sub {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.6;
+    max-width: 520px;
+    margin-top: 12px;
+  }
+</style>

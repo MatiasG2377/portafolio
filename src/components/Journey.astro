@@ -1,0 +1,127 @@
+---
+import SectionHeader from './SectionHeader.astro';
+import { getContent, tr, type Lang } from '../i18n/ui';
+import { milestones } from '../data/journey';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = getContent(lang);
+
+// Abierto por defecto: el último hito de la lista (el más reciente).
+const defaultIdx = milestones.length - 1;
+---
+
+<section id="journey" class="section">
+  <SectionHeader id="journey" eyebrow={t.sec_journey} title={t.journey_h} />
+
+  <div class="timeline">
+    {milestones.map((m, idx) => (
+      <button
+        type="button"
+        class:list={['milestone', { active: idx === defaultIdx }]}
+        aria-expanded={idx === defaultIdx ? 'true' : 'false'}
+        data-reveal-x
+      >
+        <span class="milestone-head">
+          <span class="milestone-year">{m.year}</span>
+          <span class="milestone-title">{tr(m.title, lang)}</span>
+          <span class="milestone-type">{tr(m.type, lang)}</span>
+        </span>
+        <span class="milestone-desc">{tr(m.desc, lang)}</span>
+      </button>
+    ))}
+  </div>
+</section>
+
+<script>
+  const timeline = document.querySelector<HTMLElement>('#journey .timeline');
+
+  if (timeline) {
+    const items = timeline.querySelectorAll<HTMLButtonElement>('.milestone');
+
+    items.forEach((item) => {
+      item.addEventListener('click', () => {
+        const willOpen = !item.classList.contains('active');
+
+        items.forEach((other) => {
+          const open = other === item && willOpen;
+          other.classList.toggle('active', open);
+          other.setAttribute('aria-expanded', String(open));
+        });
+      });
+    });
+  }
+</script>
+
+<style>
+  .timeline {
+    border-top: var(--border);
+  }
+
+  .milestone {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    text-align: left;
+    padding: 20px 0;
+    background: none;
+    border: none;
+    border-bottom: var(--border);
+    transition: background 0.15s ease;
+  }
+
+  .milestone.active {
+    background: var(--color-accent);
+  }
+
+  .milestone-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 16px;
+  }
+
+  .milestone-year {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .milestone-title {
+    font-size: 18px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .milestone-type {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: var(--color-ink);
+    color: var(--color-cream);
+    padding: 3px 8px;
+  }
+
+  /* max-height fijo rompería descripciones largas: 24em aguanta
+     textos de varias líneas sin que el cierre se vea instantáneo. */
+  .milestone-desc {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    font-size: 14.5px;
+    font-weight: 500;
+    line-height: 1.6;
+    max-width: 600px;
+    transition: max-height 0.3s ease, opacity 0.25s ease;
+  }
+
+  .milestone.active .milestone-desc {
+    max-height: 24em;
+    opacity: 1;
+  }
+</style>
