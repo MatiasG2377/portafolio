@@ -10,67 +10,75 @@ export interface LabDomain {
 /** Sección "Laboratorio de Exploración". El grid se reacomoda con cualquier cantidad. */
 export const labDomains: LabDomain[] = [
   {
-    title: { en: 'Artificial Intelligence', es: 'Inteligencia Artificial' },
+    title: { en: 'AI & LLM Experimentation', es: 'Experimentación con IA & LLMs' },
     status: { en: 'Exploring', es: 'Explorando' },
     desc: {
-      en: 'Applied ML, LLM tooling, and intelligent automation.',
-      es: 'ML aplicado, herramientas LLM y automatización inteligente.',
+      en: 'Prompt engineering, intelligent agents, OCR models, and integrating AI into everyday applications.',
+      es: 'Ingeniería de prompts, agentes inteligentes, modelos OCR e integración de IA en aplicaciones cotidianas.',
     },
   },
   {
-    title: { en: 'System Design', es: 'Diseño de Sistemas' },
-    status: { en: 'Practicing', es: 'Practicando' },
-    desc: {
-      en: 'Distributed systems, scalability, and trade-off thinking.',
-      es: 'Sistemas distribuidos, escalabilidad y análisis de compensaciones.',
-    },
-  },
-  {
-    title: { en: 'Cloud & DevOps', es: 'Cloud & DevOps' },
+    title: { en: 'Cloud Architecture (AWS)', es: 'Arquitectura Cloud (AWS)' },
     status: { en: 'Exploring', es: 'Explorando' },
     desc: {
-      en: 'Infrastructure, CI/CD, and resilient deployments.',
-      es: 'Infraestructura, CI/CD y despliegues resilientes.',
+      en: 'Cloud Practitioner path, AWS services, and resilient cloud architectures.',
+      es: 'Ruta Cloud Practitioner, servicios de AWS y arquitecturas resilientes.',
     },
   },
   {
-    title: { en: 'Product Engineering', es: 'Ingeniería de Producto' },
+    title: { en: 'Data Engineering & Pipelines', es: 'Ingeniería de Datos & Pipelines' },
     status: { en: 'Practicing', es: 'Practicando' },
     desc: {
-      en: 'Shipping features that connect design to engineering.',
-      es: 'Entregando funciones que conectan diseño e ingeniería.',
+      en: 'ETL workflows, data transformation, and cloud pipelines (AWS Data Engineering).',
+      es: 'Flujos ETL, transformación de datos y pipelines cloud (AWS Data Engineering).',
     },
   },
   {
-    title: { en: 'UX & Design Systems', es: 'UX & Design Systems' },
+    title: { en: 'Machine Learning Foundations', es: 'Fundamentos de Machine Learning' },
     status: { en: 'Studying', es: 'Estudiando' },
     desc: {
-      en: 'Interfaces that feel considered and coherent.',
-      es: 'Interfaces que se sienten cuidadas y coherentes.',
+      en: 'Supervised/unsupervised models, SageMaker, Pandas, and Scikit-learn.',
+      es: 'Modelos supervisados y no supervisados, SageMaker, Pandas y Scikit-learn.',
     },
   },
   {
-    title: { en: 'Data Engineering', es: 'Ingeniería de Datos' },
-    status: { en: 'Researching', es: 'Investigando' },
+    title: { en: 'Python Ecosystem & Automation', es: 'Ecosistema Python & Automatización' },
+    status: { en: 'Practicing', es: 'Practicando' },
     desc: {
-      en: 'Pipelines, modeling, and systems that move data well.',
-      es: 'Pipelines, modelado y sistemas que mueven datos bien.',
+      en: 'FastAPI, Django REST, scripting, and practical challenges (100 Days of Python).',
+      es: 'FastAPI, Django REST, scripting y retos prácticos (100 Days of Python).',
     },
   },
   {
-    title: { en: 'Cybersecurity', es: 'Ciberseguridad' },
+    title: { en: 'Full-Stack Modern Stacks', es: 'Stacks Modernos Full-Stack' },
+    status: { en: 'Practicing', es: 'Practicando' },
+    desc: {
+      en: 'Production patterns with Laravel, Blade, React, and Next.js.',
+      es: 'Patrones de producción con Laravel, Blade, React y Next.js.',
+    },
+  },
+  {
+    title: { en: 'SCRUM Methodologies', es: 'Metodologías SCRUM' },
+    status: { en: 'Practicing', es: 'Practicando' },
+    desc: {
+      en: 'Agile framework practices: sprint planning, Scrum roles and artifacts for collaborative software delivery.',
+      es: 'Prácticas del marco ágil: planificación de sprints, roles y artefactos Scrum para entrega colaborativa de software.',
+    },
+  },
+  {
+    title: { en: 'Human-Computer Interaction (HCI)', es: 'Interacción Humano-Computador (IHC)' },
     status: { en: 'Studying', es: 'Estudiando' },
     desc: {
-      en: 'Threat models, secure architecture, safe defaults.',
-      es: 'Modelos de amenaza, arquitectura segura, valores por defecto seguros.',
+      en: 'Usability principles, UX heuristics, and accessible interface design applied to real products.',
+      es: 'Principios de usabilidad, heurísticas UX y diseño de interfaces accesibles aplicados a productos reales.',
     },
   },
   {
-    title: { en: 'Emerging Technologies', es: 'Tecnologías Emergentes' },
-    status: { en: 'Curious', es: 'Con curiosidad' },
+    title: { en: 'AI Integration into Systems', es: 'Integración de IA en Sistemas' },
+    status: { en: 'Exploring', es: 'Explorando' },
     desc: {
-      en: 'Watching what reshapes how systems get built.',
-      es: 'Observando lo que redefine cómo se construyen los sistemas.',
+      en: 'Embedding intelligent capabilities (LLMs, automation, agents) into existing web and enterprise systems.',
+      es: 'Incorporación de capacidades inteligentes (LLMs, automatización, agentes) en sistemas web y empresariales existentes.',
     },
   },
 ];

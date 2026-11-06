@@ -4,11 +4,11 @@
  */
 export const site = {
   name: 'Matías Gamboa',
-  email: 'hello@example.com',
-  github: 'https://github.com/',
-  linkedin: 'https://www.linkedin.com/',
+  email: 'matiasg002@outlook.com',
+  github: 'https://github.com/MatiasG2377',
+  linkedin: 'https://www.linkedin.com/in/matiasgamboa',
   resume: '/cv.pdf',
-  /** Foto de About. Vacío = se muestra el placeholder de rayas. */
-  photo: '',
+  /** Foto de About. */
+  photo: '/avatar.jpg',
   year: 2026,
 };

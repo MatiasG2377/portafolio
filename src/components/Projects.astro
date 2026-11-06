@@ -1,5 +1,6 @@
 ---
 import SectionHeader from './SectionHeader.astro';
+import ProjectGalleryModal from './ProjectGalleryModal.astro';
 import { getContent, tr, type Lang } from '../i18n/ui';
 import { projects } from '../data/projects';
 import { domains } from '../data/domains';
@@ -32,11 +33,24 @@ const usedDomains = domains.filter((d) => projects.some((p) => p.domain === d.ke
   <div class="cards">
     {projects.map((p) => (
       <article class="card" data-domain={p.domain} data-reveal>
-        <div class:list={['card-thumb', { stripes: !p.image }]}>
+        <div
+          class:list={['card-thumb', { stripes: !p.image, clickable: !!p.screenshots }]}
+          data-open-gallery={p.screenshots ? p.slug : undefined}
+        >
           {p.image ? (
             <img src={p.image} alt={tr(p.title, lang)} loading="lazy" />
           ) : (
             <span class="card-thumb-caption">{t.project_shot}</span>
+          )}
+          {p.screenshots && p.screenshots.length > 0 && (
+            <button
+              type="button"
+              class="card-thumb-badge"
+              data-open-gallery={p.slug}
+              title={t.project_gallery}
+            >
+              📸 {p.screenshots.length} {lang === 'es' ? 'CAPTURAS' : 'SHOTS'}
+            </button>
           )}
         </div>
 
@@ -44,8 +58,8 @@ const usedDomains = domains.filter((d) => projects.some((p) => p.domain === d.ke
           <span class="card-domain">{tr(domains.find((d) => d.key === p.domain)!.label, lang)}</span>
 
           <h3 class="card-title">
-            {p.url ? (
-              <a href={p.url} target="_blank" rel="noopener noreferrer">{tr(p.title, lang)} ↗</a>
+            {(p.repoUrl || p.url) ? (
+              <a href={p.repoUrl || p.url} target="_blank" rel="noopener noreferrer">{tr(p.title, lang)} ↗</a>
             ) : (
               tr(p.title, lang)
             )}
@@ -58,12 +72,48 @@ const usedDomains = domains.filter((d) => projects.some((p) => p.domain === d.ke
               <span class="card-tag">{tag}</span>
             ))}
           </div>
+
+          {(p.screenshots || p.repoUrl || p.url) && (
+            <div class="card-actions">
+              {p.screenshots && p.screenshots.length > 0 && (
+                <button
+                  type="button"
+                  class="action-btn action-gallery"
+                  data-open-gallery={p.slug}
+                >
+                  <span>📸</span> {t.project_gallery} ({p.screenshots.length})
+                </button>
+              )}
+              {(p.repoUrl || (p.url && p.url.includes('github.com'))) && (
+                <a
+                  href={p.repoUrl || p.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="action-btn action-repo"
+                >
+                  <span>💻</span> GitHub ↗
+                </a>
+              )}
+              {p.url && !p.url.includes('github.com') && p.url !== p.repoUrl && (
+                <a
+                  href={p.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="action-btn action-link"
+                >
+                  <span>↗</span> Demo
+                </a>
+              )}
+            </div>
+          )}
         </div>
       </article>
     ))}
   </div>
 
   <p class="projects-empty" hidden>{t.projects_empty}</p>
+
+  <ProjectGalleryModal lang={lang} />
 </section>
 
 <script>
@@ -146,10 +196,42 @@ const usedDomains = domains.filter((d) => projects.some((p) => p.domain === d.ke
     overflow: hidden;
   }
 
+  .card-thumb.clickable {
+    cursor: pointer;
+  }
+
   .card-thumb img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.25s ease;
+  }
+
+  .card-thumb.clickable:hover img {
+    transform: scale(1.04);
+  }
+
+  .card-thumb-badge {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    background: var(--color-ink);
+    color: var(--color-cream);
+    border: var(--border-thin);
+    padding: 5px 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--color-accent);
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+
+  .card-thumb-badge:hover {
+    background: var(--color-accent);
+    color: var(--color-cream);
+    transform: translateY(-2px);
   }
 
   .card-thumb-caption {
@@ -212,6 +294,55 @@ const usedDomains = domains.filter((d) => projects.some((p) => p.domain === d.ke
     padding: 5px 10px;
     border: var(--border-thin);
     margin: -2px 0 0 -2px;
+  }
+
+  .card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+    padding-top: 14px;
+    border-top: var(--border-thin);
+  }
+
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 7px 12px;
+    border: var(--border-thin);
+    color: var(--color-ink);
+    background: var(--color-cream);
+    box-shadow: 3px 3px 0 var(--color-ink);
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+
+  .action-btn:hover {
+    background: var(--color-ink);
+    color: var(--color-cream);
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 var(--color-accent);
+  }
+
+  .action-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--color-ink);
+  }
+
+  .action-gallery {
+    background: #EDE9FE;
+    border-color: var(--color-ink);
+  }
+
+  .action-gallery:hover {
+    background: var(--color-accent);
+    color: var(--color-cream);
   }
 
   .projects-empty {

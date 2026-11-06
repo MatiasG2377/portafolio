@@ -1,5 +1,6 @@
 ---
 import { getContent, type Lang } from '../i18n/ui';
+import KnowledgeGraph from './KnowledgeGraph.astro';
 
 interface Props {
   lang: Lang;
@@ -28,8 +29,8 @@ const t = getContent(lang);
     </div>
   </div>
 
-  <div class="hero-graphic stripes">
-    <span class="hero-graphic-caption">{t.hero_graph_caption}</span>
+  <div class="hero-graphic">
+    <KnowledgeGraph lang={lang} />
   </div>
 </header>
 
@@ -115,8 +116,9 @@ const t = getContent(lang);
 
   .hero-graphic {
     position: relative;
-    height: 260px;
+    height: clamp(340px, 42vw, 460px);
     border: var(--border);
+    background: var(--color-cream);
   }
 
   /* Apilados a ancho completo: en móvil dos botones en fila

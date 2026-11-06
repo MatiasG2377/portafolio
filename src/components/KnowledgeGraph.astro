@@ -1,0 +1,586 @@
+---
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+
+const hintText = lang === 'es' 
+  ? 'GRAFO INTERACTIVO — ARRASTRA O TOCA LOS NODOS' 
+  : 'INTERACTIVE GRAPH — DRAG OR TAP NODES';
+---
+
+<div class="graph-wrapper" id="knowledge-graph-container">
+  <canvas id="knowledge-graph" class="graph-canvas"></canvas>
+  <div class="graph-overlay">
+    <span class="graph-status">
+      <span class="status-dot"></span>
+      <span class="status-label">{hintText}</span>
+    </span>
+  </div>
+</div>
+
+<script>
+  interface NodeItem {
+    id: string;
+    label: string;
+    isPrimary: boolean;
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    radius: number;
+    baseRadius: number;
+    color: string;
+    textColor: string;
+    borderColor: string;
+    connections: string[];
+  }
+
+  const container = document.getElementById('knowledge-graph-container');
+  const canvas = document.getElementById('knowledge-graph') as HTMLCanvasElement | null;
+
+  if (container && canvas) {
+    const ctx = canvas.getContext('2d');
+
+    // Nodos centrados en lo que solicitó Matías:
+    // Principales: Python, React, Laravel, Django, FastAPI, IA
+    // Conectados complementarios: Next.js, TypeScript, Flutter, Firebase, PostgreSQL, MySQL, REST APIs, etc.
+    const rawNodes: Omit<NodeItem, 'x' | 'y' | 'vx' | 'vy' | 'radius' | 'baseRadius'>[] = [
+      // Principales (Hubs destacados con acento violeta o fondo tinta)
+      { id: 'ia', label: 'IA & LLMs', isPrimary: true, color: '#7C3AED', textColor: '#FAFAF5', borderColor: '#0A0A0A', connections: ['python', 'fastapi', 'ocr', 'prompting'] },
+      { id: 'python', label: 'Python', isPrimary: true, color: '#0A0A0A', textColor: '#FAFAF5', borderColor: '#0A0A0A', connections: ['django', 'fastapi', 'ia', 'fullstack'] },
+      { id: 'react', label: 'React', isPrimary: true, color: '#0A0A0A', textColor: '#FAFAF5', borderColor: '#0A0A0A', connections: ['nextjs', 'typescript', 'fullstack'] },
+      { id: 'laravel', label: 'Laravel', isPrimary: true, color: '#0A0A0A', textColor: '#FAFAF5', borderColor: '#0A0A0A', connections: ['php', 'mysql', 'fullstack'] },
+      { id: 'django', label: 'Django', isPrimary: true, color: '#0A0A0A', textColor: '#FAFAF5', borderColor: '#0A0A0A', connections: ['python', 'rest_api', 'postgresql'] },
+      { id: 'fastapi', label: 'FastAPI', isPrimary: true, color: '#0A0A0A', textColor: '#FAFAF5', borderColor: '#0A0A0A', connections: ['python', 'rest_api', 'ia'] },
+      { id: 'scrum_devspec', label: 'SCRUM + DEVSPEC', isPrimary: true, color: '#0A0A0A', textColor: '#FAFAF5', borderColor: '#0A0A0A', connections: ['fullstack', 'laravel', 'react'] },
+      
+      // Conectados / Complementarios
+      { id: 'fullstack', label: 'Full-Stack', isPrimary: true, color: '#7C3AED', textColor: '#FAFAF5', borderColor: '#0A0A0A', connections: ['laravel', 'react', 'python', 'flutter'] },
+      { id: 'nextjs', label: 'Next.js', isPrimary: false, color: '#FAFAF5', textColor: '#0A0A0A', borderColor: '#0A0A0A', connections: ['react', 'typescript'] },
+      { id: 'flutter', label: 'Flutter', isPrimary: false, color: '#FAFAF5', textColor: '#0A0A0A', borderColor: '#0A0A0A', connections: ['fullstack', 'firebase'] },
+      { id: 'firebase', label: 'Firebase', isPrimary: false, color: '#FAFAF5', textColor: '#0A0A0A', borderColor: '#0A0A0A', connections: ['flutter'] },
+      { id: 'typescript', label: 'TypeScript', isPrimary: false, color: '#FAFAF5', textColor: '#0A0A0A', borderColor: '#0A0A0A', connections: ['react', 'nextjs'] },
+      { id: 'php', label: 'PHP', isPrimary: false, color: '#FAFAF5', textColor: '#0A0A0A', borderColor: '#0A0A0A', connections: ['laravel', 'mysql'] },
+      { id: 'mysql', label: 'MySQL', isPrimary: false, color: '#FAFAF5', textColor: '#0A0A0A', borderColor: '#0A0A0A', connections: ['laravel', 'php'] },
+      { id: 'postgresql', label: 'PostgreSQL', isPrimary: false, color: '#FAFAF5', textColor: '#0A0A0A', borderColor: '#0A0A0A', connections: ['django', 'fullstack'] },
+      { id: 'rest_api', label: 'REST APIs', isPrimary: false, color: '#FAFAF5', textColor: '#0A0A0A', borderColor: '#0A0A0A', connections: ['django', 'fastapi'] },
+      { id: 'ocr', label: 'OCR & Vision', isPrimary: false, color: '#FAFAF5', textColor: '#0A0A0A', borderColor: '#0A0A0A', connections: ['ia'] },
+      { id: 'prompting', label: 'Prompt Eng.', isPrimary: false, color: '#FAFAF5', textColor: '#0A0A0A', borderColor: '#0A0A0A', connections: ['ia'] },
+    ];
+
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+    let nodes: NodeItem[] = [];
+    let draggedNode: NodeItem | null = null;
+    let hoveredNode: NodeItem | null = null;
+    let mouseX = -1000;
+    let mouseY = -1000;
+    let animId = 0;
+    let pulseTime = 0;
+
+    function resize() {
+      if (!container || !canvas || !ctx) return;
+      const rect = container.getBoundingClientRect();
+      width = rect.width;
+      height = rect.height;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+
+      // Si es la primera vez, distribuir nodos en un layout armónico
+      if (nodes.length === 0) {
+        initNodes();
+      } else {
+        // Mantener nodos dentro de los límites visibles si la ventana cambia de tamaño
+        nodes.forEach((n) => {
+          n.x = Math.max(n.radius + 15, Math.min(width - n.radius - 15, n.x));
+          n.y = Math.max(n.radius + 15, Math.min(height - n.radius - 15, n.y));
+        });
+      }
+    }
+
+    function initNodes() {
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const spreadX = Math.min(width * 0.42, 380);
+      const spreadY = Math.min(height * 0.38, 140);
+
+      nodes = rawNodes.map((n, i) => {
+        // Disposición radial balanceada con cierta aleatoriedad orgánica
+        const angle = (i / rawNodes.length) * Math.PI * 2;
+        const distRatio = n.isPrimary ? 0.45 + (i % 2) * 0.15 : 0.82 + (i % 3) * 0.12;
+        const x = centerX + Math.cos(angle) * spreadX * distRatio + (Math.random() - 0.5) * 30;
+        const y = centerY + Math.sin(angle) * spreadY * distRatio + (Math.random() - 0.5) * 20;
+
+        const baseRadius = n.isPrimary ? 34 : 26;
+
+        return {
+          ...n,
+          x: Math.max(baseRadius + 10, Math.min(width - baseRadius - 10, x)),
+          y: Math.max(baseRadius + 10, Math.min(height - baseRadius - 10, y)),
+          vx: (Math.random() - 0.5) * 0.45,
+          vy: (Math.random() - 0.5) * 0.45,
+          radius: baseRadius,
+          baseRadius,
+        };
+      });
+    }
+
+    // Dibujar cuadrícula técnica de fondo (papel milimétrico sutil)
+    function drawBackgroundGrid() {
+      if (!ctx) return;
+      const gridSize = 32;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(10, 10, 10, 0.05)';
+      ctx.lineWidth = 1;
+
+      // Líneas verticales
+      for (let x = 0; x <= width; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+
+      // Líneas horizontales
+      for (let y = 0; y <= height; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+
+      // Pequeñas cruces en intersecciones
+      ctx.strokeStyle = 'rgba(10, 10, 10, 0.12)';
+      ctx.lineWidth = 1;
+      const crossSize = 3;
+      for (let x = gridSize; x < width; x += gridSize * 2) {
+        for (let y = gridSize; y < height; y += gridSize * 2) {
+          ctx.beginPath();
+          ctx.moveTo(x - crossSize, y);
+          ctx.lineTo(x + crossSize, y);
+          ctx.moveTo(x, y - crossSize);
+          ctx.lineTo(x, y + crossSize);
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+    }
+
+    function updatePhysics() {
+      pulseTime += 0.025;
+
+      const friction = 0.94;
+      const centerAttraction = 0.00035;
+      const centerX = width / 2;
+      const centerY = height / 2;
+
+      for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
+
+        if (node === draggedNode) continue;
+
+        // Atracción suave al centro para que no se escapen
+        node.vx += (centerX - node.x) * centerAttraction;
+        node.vy += (centerY - node.y) * centerAttraction;
+
+        // Repulsión entre nodos para evitar solapamientos
+        for (let j = i + 1; j < nodes.length; j++) {
+          const other = nodes[j];
+          const dx = other.x - node.x;
+          const dy = other.y - node.y;
+          const dist = Math.hypot(dx, dy) || 1;
+          const minDist = node.radius + other.radius + 24;
+
+          if (dist < minDist) {
+            const force = (minDist - dist) / dist * 0.12;
+            const fx = dx * force;
+            const fy = dy * force;
+            node.vx -= fx;
+            node.vy -= fy;
+            other.vx += fx;
+            other.vy += fy;
+          }
+        }
+
+        // Tensión de muelles a lo largo de las conexiones directas
+        node.connections.forEach((targetId) => {
+          const target = nodes.find((n) => n.id === targetId);
+          if (target) {
+            const dx = target.x - node.x;
+            const dy = target.y - node.y;
+            const dist = Math.hypot(dx, dy) || 1;
+            const idealDist = (node.isPrimary && target.isPrimary) ? 140 : 100;
+            const springForce = (dist - idealDist) * 0.00045;
+            const fx = dx * springForce;
+            const fy = dy * springForce;
+            node.vx += fx;
+            node.vy += fy;
+          }
+        });
+
+        // Interacción sutil con el cursor del mouse (repulsión magnética suave)
+        const mouseDx = node.x - mouseX;
+        const mouseDy = node.y - mouseY;
+        const mouseDist = Math.hypot(mouseDx, mouseDy);
+        if (mouseDist < 120 && mouseDist > 0) {
+          const push = (120 - mouseDist) / 120 * 0.35;
+          node.vx += (mouseDx / mouseDist) * push;
+          node.vy += (mouseDy / mouseDist) * push;
+        }
+
+        // Aplicar fricción y velocidad
+        node.vx *= friction;
+        node.vy *= friction;
+
+        // Deriva suave (zero-gravity drift)
+        node.x += node.vx + Math.sin(pulseTime + i) * 0.12;
+        node.y += node.vy + Math.cos(pulseTime + i * 0.8) * 0.12;
+
+        // Colisión suave con bordes
+        const pad = node.radius + 12;
+        if (node.x < pad) {
+          node.x = pad;
+          node.vx *= -0.5;
+        } else if (node.x > width - pad) {
+          node.x = width - pad;
+          node.vx *= -0.5;
+        }
+
+        if (node.y < pad) {
+          node.y = pad;
+          node.vy *= -0.5;
+        } else if (node.y > height - pad) {
+          node.y = height - pad;
+          node.vy *= -0.5;
+        }
+      }
+    }
+
+    function render() {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, width, height);
+
+      drawBackgroundGrid();
+
+      // Determinar qué nodo está activo para resaltar su sub-red
+      const activeNode = draggedNode || hoveredNode;
+
+      // 1. Dibujar conexiones (aristas)
+      const drawnPairs = new Set<string>();
+
+      nodes.forEach((node) => {
+        node.connections.forEach((targetId) => {
+          const target = nodes.find((n) => n.id === targetId);
+          if (!target) return;
+
+          const pairKey = [node.id, target.id].sort().join('--');
+          if (drawnPairs.has(pairKey)) return;
+          drawnPairs.add(pairKey);
+
+          const isConnectedToActive = activeNode && (node.id === activeNode.id || target.id === activeNode.id);
+          const isPrimaryLink = node.isPrimary && target.isPrimary;
+
+          ctx.beginPath();
+          ctx.moveTo(node.x, node.y);
+          ctx.lineTo(target.x, target.y);
+
+          if (isConnectedToActive) {
+            ctx.strokeStyle = '#7C3AED';
+            ctx.lineWidth = 2.8;
+            ctx.setLineDash([]);
+          } else if (activeNode) {
+            // Atenuar si hay otro nodo enfocado
+            ctx.strokeStyle = 'rgba(10, 10, 10, 0.08)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4, 4]);
+          } else if (isPrimaryLink) {
+            ctx.strokeStyle = 'rgba(10, 10, 10, 0.35)';
+            ctx.lineWidth = 1.8;
+            ctx.setLineDash([]);
+          } else {
+            ctx.strokeStyle = 'rgba(10, 10, 10, 0.18)';
+            ctx.lineWidth = 1.2;
+            ctx.setLineDash([4, 4]);
+          }
+
+          ctx.stroke();
+
+          // Pulso de datos viajando por la línea activa
+          if (isConnectedToActive) {
+            const t = (pulseTime * 1.5) % 1;
+            const px = node.x + (target.x - node.x) * t;
+            const py = node.y + (target.y - node.y) * t;
+
+            ctx.beginPath();
+            ctx.arc(px, py, 3.5, 0, Math.PI * 2);
+            ctx.fillStyle = '#0A0A0A';
+            ctx.fill();
+          }
+        });
+      });
+
+      ctx.setLineDash([]);
+
+      // 2. Dibujar nodos
+      nodes.forEach((node) => {
+        const isHovered = node === hoveredNode;
+        const isDragged = node === draggedNode;
+        const isConnectedToActive = activeNode && (node.id === activeNode.id || activeNode.connections.includes(node.id) || node.connections.includes(activeNode.id));
+
+        // Animación de tamaño al enfocar
+        const targetRadius = (isHovered || isDragged) ? node.baseRadius + 5 : node.baseRadius;
+        node.radius += (targetRadius - node.radius) * 0.2;
+
+        ctx.save();
+        ctx.translate(node.x, node.y);
+
+        // Sombra neo-brutalista dura para los nodos
+        const shadowOffset = (isHovered || isDragged) ? 5 : 3;
+        ctx.beginPath();
+        drawNodeShape(ctx, node.radius, node.isPrimary, node.label);
+        ctx.fillStyle = '#0A0A0A';
+        ctx.save();
+        ctx.translate(shadowOffset, shadowOffset);
+        ctx.fill();
+        ctx.restore();
+
+        // Relleno principal del nodo
+        ctx.beginPath();
+        drawNodeShape(ctx, node.radius, node.isPrimary, node.label);
+
+        if (isHovered || isDragged) {
+          ctx.fillStyle = node.isPrimary ? '#9061F9' : '#EDE9FE';
+        } else if (activeNode && !isConnectedToActive) {
+          ctx.fillStyle = node.isPrimary ? 'rgba(124, 58, 237, 0.3)' : 'rgba(250, 250, 245, 0.5)';
+        } else {
+          ctx.fillStyle = node.color;
+        }
+        ctx.fill();
+
+        // Borde grueso neo-brutalista
+        ctx.lineWidth = node.isPrimary ? 2.5 : 2;
+        ctx.strokeStyle = '#0A0A0A';
+        ctx.stroke();
+
+        // Texto / Etiqueta del nodo
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = node.isPrimary
+          ? `700 ${Math.max(10.5, node.radius * 0.34)}px "JetBrains Mono", monospace`
+          : `600 ${Math.max(9.5, node.radius * 0.36)}px "JetBrains Mono", monospace`;
+
+        if (isHovered || isDragged) {
+          ctx.fillStyle = node.isPrimary ? '#FFFFFF' : '#0A0A0A';
+        } else if (activeNode && !isConnectedToActive) {
+          ctx.fillStyle = 'rgba(10, 10, 10, 0.35)';
+        } else {
+          ctx.fillStyle = node.textColor;
+        }
+
+        ctx.fillText(node.label, 0, 0);
+
+        ctx.restore();
+      });
+
+      updatePhysics();
+      animId = requestAnimationFrame(render);
+    }
+
+    function drawNodeShape(context: CanvasRenderingContext2D, r: number, isPill: boolean, label?: string) {
+      const minW = isPill ? r * 2.3 : r * 2.05;
+      const textW = label ? label.length * 8.2 + 18 : 0;
+      const w = Math.max(minW, textW);
+      const h = isPill ? r * 1.35 : r * 1.25;
+      const radius = isPill ? 6 : 4;
+      context.roundRect(-w / 2, -h / 2, w, h, radius);
+    }
+
+    function getNodeAt(x: number, y: number): NodeItem | null {
+      for (let i = nodes.length - 1; i >= 0; i--) {
+        const node = nodes[i];
+        const minW = node.isPrimary ? node.radius * 2.3 : node.radius * 2.05;
+        const textW = node.label.length * 8.2 + 18;
+        const hitWidth = Math.max(minW, textW) / 2 + 6;
+        const hitHeight = (node.radius * 1.35) / 2 + 6;
+        if (Math.abs(x - node.x) <= hitWidth && Math.abs(y - node.y) <= hitHeight) {
+          return node;
+        }
+      }
+      return null;
+    }
+
+    // Eventos Mouse
+    function onMouseMove(e: MouseEvent) {
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      mouseX = e.clientX - rect.left;
+      mouseY = e.clientY - rect.top;
+
+      if (draggedNode) {
+        draggedNode.x = Math.max(draggedNode.radius + 10, Math.min(width - draggedNode.radius - 10, mouseX));
+        draggedNode.y = Math.max(draggedNode.radius + 10, Math.min(height - draggedNode.radius - 10, mouseY));
+        draggedNode.vx = 0;
+        draggedNode.vy = 0;
+        return;
+      }
+
+      hoveredNode = getNodeAt(mouseX, mouseY);
+      canvas.style.cursor = hoveredNode ? 'grab' : 'default';
+    }
+
+    function onMouseDown(e: MouseEvent) {
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+
+      const hit = getNodeAt(clickX, clickY);
+      if (hit) {
+        draggedNode = hit;
+        canvas.style.cursor = 'grabbing';
+      }
+    }
+
+    function onMouseUp() {
+      if (draggedNode && canvas) {
+        canvas.style.cursor = hoveredNode ? 'grab' : 'default';
+      }
+      draggedNode = null;
+    }
+
+    function onMouseLeave() {
+      mouseX = -1000;
+      mouseY = -1000;
+      hoveredNode = null;
+      draggedNode = null;
+      if (canvas) canvas.style.cursor = 'default';
+    }
+
+    // Eventos Touch (móviles)
+    function onTouchStart(e: TouchEvent) {
+      if (!canvas || e.touches.length === 0) return;
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      const touchX = touch.clientX - rect.left;
+      const touchY = touch.clientY - rect.top;
+
+      const hit = getNodeAt(touchX, touchY);
+      if (hit) {
+        draggedNode = hit;
+        hoveredNode = hit;
+        e.preventDefault();
+      }
+    }
+
+    function onTouchMove(e: TouchEvent) {
+      if (!canvas || !draggedNode || e.touches.length === 0) return;
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      const touchX = touch.clientX - rect.left;
+      const touchY = touch.clientY - rect.top;
+
+      draggedNode.x = Math.max(draggedNode.radius + 10, Math.min(width - draggedNode.radius - 10, touchX));
+      draggedNode.y = Math.max(draggedNode.radius + 10, Math.min(height - draggedNode.radius - 10, touchY));
+      draggedNode.vx = 0;
+      draggedNode.vy = 0;
+      e.preventDefault();
+    }
+
+    function onTouchEnd() {
+      draggedNode = null;
+      hoveredNode = null;
+    }
+
+    // Resize observer para adaptarse con precisión
+    const resizeObserver = new ResizeObserver(() => {
+      resize();
+    });
+    resizeObserver.observe(container);
+
+    // Event Listeners
+    canvas.addEventListener('mousemove', onMouseMove);
+    canvas.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mouseup', onMouseUp);
+    canvas.addEventListener('mouseleave', onMouseLeave);
+
+    canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+    canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+    window.addEventListener('touchend', onTouchEnd);
+
+    // Inicializar y lanzar loop
+    resize();
+    render();
+  }
+</script>
+
+<style>
+  .graph-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 280px;
+    background: var(--color-cream);
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .graph-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+  }
+
+  .graph-overlay {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .graph-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--color-cream);
+    border: var(--border-thin);
+    box-shadow: 2px 2px 0 var(--color-ink);
+    padding: 5px 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--color-ink);
+    letter-spacing: 0.03em;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--color-accent);
+    border: 1px solid var(--color-ink);
+    border-radius: 50%;
+    animation: brutBlink 1.4s infinite;
+  }
+
+  @media (max-width: 600px) {
+    .graph-status {
+      font-size: 9.5px;
+      padding: 3px 8px;
+    }
+  }
+</style>

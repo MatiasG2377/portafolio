@@ -11,38 +11,38 @@ export interface FocusItem {
  */
 export const focusItems: FocusItem[] = [
   {
-    title: { en: 'Full Stack Development', es: 'Desarrollo Full Stack' },
+    title: { en: 'Full-Stack & Mobile Development', es: 'Desarrollo Full-Stack & Móvil' },
     desc: {
-      en: 'End-to-end product engineering across the stack.',
-      es: 'Ingeniería de producto de extremo a extremo en todo el stack.',
+      en: 'Building scalable applications with Laravel, PHP, React, Next.js, Django, and Flutter.',
+      es: 'Construcción de aplicaciones escalables con Laravel, PHP, React, Next.js, Django y Flutter.',
     },
   },
   {
-    title: { en: 'Web Applications', es: 'Aplicaciones Web' },
+    title: { en: 'Applied AI & Experimentation', es: 'IA Aplicada & Experimentación' },
     desc: {
-      en: 'Building performant, scalable interfaces and services.',
-      es: 'Construcción de interfaces y servicios rápidos y escalables.',
+      en: 'Continuously experimenting with AI models, OCR, prompt engineering, and integrating intelligent features into software.',
+      es: 'Experimentación activa con modelos de IA, OCR, visión por computadora e integración de funciones inteligentes en software.',
     },
   },
   {
-    title: { en: 'Backend Architecture', es: 'Arquitectura Backend' },
+    title: { en: 'Backend & REST APIs', es: 'Backend & APIs REST' },
     desc: {
-      en: 'Designing systems that stay reliable under change.',
-      es: 'Diseño de sistemas que siguen siendo fiables ante el cambio.',
+      en: 'Designing secure, maintainable endpoints, JWT auth, and business logic with Django REST & FastAPI.',
+      es: 'Diseño de endpoints seguros y mantenibles, autenticación JWT y lógica de negocio con Django REST y FastAPI.',
     },
   },
   {
-    title: { en: 'Frontend Experiences', es: 'Experiencias Frontend' },
+    title: { en: 'Relational Databases', es: 'Bases de Datos Relacionales' },
     desc: {
-      en: 'Crafting interfaces with clarity and intent.',
-      es: 'Interfaces creadas con claridad e intención.',
+      en: 'Data modeling, query optimization, and management across MySQL, PostgreSQL, and SQL Server.',
+      es: 'Modelado de datos, optimización de consultas y gestión con MySQL, PostgreSQL y SQL Server.',
     },
   },
   {
-    title: { en: 'APIs & Integrations', es: 'APIs e Integraciones' },
+    title: { en: 'Cloud & Infrastructure (AWS)', es: 'Cloud & Infraestructura (AWS)' },
     desc: {
-      en: 'Connecting systems into coherent products.',
-      es: 'Conectando sistemas en productos coherentes.',
+      en: 'Cloud Practitioner preparation, cloud pipelines, and resilient architecture exploration.',
+      es: 'Preparación Cloud Practitioner, pipelines en la nube y arquitecturas resilientes en AWS.',
     },
   },
 ];

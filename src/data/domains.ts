@@ -9,10 +9,10 @@ import type { Localized } from './types';
  */
 export const domains = [
   { key: 'web', label: { en: 'Web Applications', es: 'Aplicaciones Web' } },
-  { key: 'automation', label: { en: 'Automation', es: 'Automatización' } },
-  { key: 'ai', label: { en: 'AI Experiments', es: 'Experimentos IA' } },
-  { key: 'systems', label: { en: 'System Design', es: 'Diseño de Sistemas' } },
-  { key: 'research', label: { en: 'Research & Learning', es: 'Investigación' } },
+  { key: 'mobile', label: { en: 'Mobile Applications', es: 'Aplicaciones Móviles' } },
+  { key: 'fullstack', label: { en: 'Full-Stack Systems', es: 'Sistemas Full-Stack' } },
+  { key: 'python', label: { en: 'Python & Automation', es: 'Python & Automatización' } },
+  { key: 'cloud', label: { en: 'Cloud & Data', es: 'Cloud & Datos' } },
 ] as const satisfies readonly { key: string; label: Localized }[];
 
 export type DomainKey = (typeof domains)[number]['key'];

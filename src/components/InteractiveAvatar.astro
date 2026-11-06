@@ -1,0 +1,206 @@
+---
+interface Props {
+  alt?: string;
+}
+
+const { alt = 'Avatar 3D de Matías Gamboa' } = Astro.props;
+---
+
+<div class="avatar-card-wrapper" id="avatar-tilt-container">
+  <div class="avatar-card" id="avatar-tilt-card">
+    <div class="avatar-hud-top">
+      <span class="hud-tag">DEV // MATÍAS GAMBOA</span>
+      <span class="hud-status">
+        <span class="status-dot"></span>
+        <span>ONLINE</span>
+      </span>
+    </div>
+
+    <div class="avatar-visual">
+      <img src="/avatar.jpg" alt={alt} class="avatar-img" draggable="false" />
+      <!-- Brillo dinámico especular que reacciona a la luz del cursor -->
+      <div class="avatar-sheen" id="avatar-sheen"></div>
+    </div>
+
+    <div class="avatar-hud-bottom">
+      <span class="hud-text">INGENIERO EN SISTEMAS</span>
+      <span class="hud-badge">FULL-STACK</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  const container = document.getElementById('avatar-tilt-container');
+  const card = document.getElementById('avatar-tilt-card');
+  const sheen = document.getElementById('avatar-sheen');
+
+  if (container && card && sheen) {
+    let bounds: DOMRect;
+
+    function updateBounds() {
+      bounds = container!.getBoundingClientRect();
+    }
+
+    updateBounds();
+    window.addEventListener('resize', updateBounds);
+    window.addEventListener('scroll', updateBounds, { passive: true });
+
+    function onMouseMove(e: MouseEvent) {
+      if (!bounds) updateBounds();
+
+      const mouseX = e.clientX - bounds.left;
+      const mouseY = e.clientY - bounds.top;
+
+      // Porcentaje relativo al contenedor (-0.5 a 0.5)
+      const xPct = (mouseX / bounds.width) - 0.5;
+      const yPct = (mouseY / bounds.height) - 0.5;
+
+      // Grados de rotación suave (máximo 12 grados)
+      const rotateX = (-yPct * 16).toFixed(2);
+      const rotateY = (xPct * 16).toFixed(2);
+
+      card!.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+
+      // Reflejo de luz suave
+      const sheenX = ((xPct + 0.5) * 100).toFixed(1);
+      const sheenY = ((yPct + 0.5) * 100).toFixed(1);
+      sheen!.style.background = `radial-gradient(circle at ${sheenX}% ${sheenY}%, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0) 65%)`;
+    }
+
+    function onMouseLeave() {
+      // Vuelve a posición de reposo con transición suave
+      card!.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+      sheen!.style.background = 'none';
+    }
+
+    container.addEventListener('mousemove', onMouseMove);
+    container.addEventListener('mouseleave', onMouseLeave);
+  }
+</script>
+
+<style>
+  .avatar-card-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    margin: 0 auto;
+    perspective: 800px;
+    cursor: pointer;
+  }
+
+  .avatar-card {
+    position: relative;
+    background: var(--color-cream);
+    border: var(--border);
+    box-shadow: 8px 8px 0 var(--color-ink);
+    overflow: hidden;
+    transform-style: preserve-3d;
+    transition: transform 0.15s ease-out, box-shadow 0.2s ease;
+    will-change: transform;
+  }
+
+  .avatar-card:hover {
+    box-shadow: 12px 12px 0 var(--color-accent);
+  }
+
+  /* HUD Superior */
+  .avatar-hud-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--color-ink);
+    color: var(--color-cream);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .hud-tag {
+    color: var(--color-cream);
+  }
+
+  .hud-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-cream);
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    background: #10B981;
+    border-radius: 50%;
+    animation: brutBlink 1.4s infinite;
+  }
+
+  /* Contenedor Visual */
+  .avatar-visual {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    background: var(--color-cream);
+  }
+
+  .avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: transform 0.3s ease;
+  }
+
+  .avatar-card:hover .avatar-img {
+    transform: scale(1.02);
+  }
+
+  /* Reflejo especular */
+  .avatar-sheen {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+    transition: background 0.1s ease;
+  }
+
+  /* HUD Inferior */
+  .avatar-hud-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 12px;
+    background: var(--color-cream);
+    border-top: var(--border-thin);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .hud-text {
+    color: var(--color-ink);
+    letter-spacing: 0.02em;
+  }
+
+  .hud-badge {
+    background: var(--color-accent);
+    color: var(--color-cream);
+    padding: 3px 8px;
+    border: 1px solid var(--color-ink);
+    font-size: 10.5px;
+  }
+
+  @media (max-width: 480px) {
+    .avatar-hud-top,
+    .avatar-hud-bottom {
+      font-size: 9.5px;
+      padding: 6px 10px;
+    }
+  }
+</style>

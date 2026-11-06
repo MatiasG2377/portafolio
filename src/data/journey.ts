@@ -15,96 +15,51 @@ export interface Milestone {
  */
 export const milestones: Milestone[] = [
   {
-    year: '2019',
-    type: { en: 'Foundation', es: 'Base' },
-    title: {
-      en: 'Systems Engineering studies begin',
-      es: 'Comienzan los estudios de Ingeniería de Sistemas',
-    },
-    desc: {
-      en: 'Started formal study of systems thinking, algorithms, and architecture fundamentals.',
-      es: 'Inicio del estudio formal del pensamiento sistémico, algoritmos y fundamentos de arquitectura.',
-    },
-  },
-  {
-    year: '2020',
-    type: { en: 'Course', es: 'Curso' },
-    title: {
-      en: 'Software architecture foundations',
-      es: 'Fundamentos de arquitectura de software',
-    },
-    desc: {
-      en: 'Deep dive into design patterns and large-scale system structure.',
-      es: 'Inmersión en patrones de diseño y estructura de sistemas a gran escala.',
-    },
-  },
-  {
-    year: '2021',
-    type: { en: 'Project', es: 'Proyecto' },
-    title: {
-      en: 'First full-stack application shipped',
-      es: 'Primera aplicación full-stack lanzada',
-    },
-    desc: {
-      en: 'Built and deployed an end-to-end web product from scratch.',
-      es: 'Construcción y despliegue de un producto web completo desde cero.',
-    },
-  },
-  {
-    year: '2022',
-    type: { en: 'Certification', es: 'Certificación' },
-    title: {
-      en: 'Cloud infrastructure fundamentals',
-      es: 'Fundamentos de infraestructura cloud',
-    },
-    desc: {
-      en: 'Certified in core cloud architecture and deployment practices.',
-      es: 'Certificación en arquitectura y prácticas de despliegue en la nube.',
-    },
-  },
-  {
     year: '2023',
-    type: { en: 'Role', es: 'Rol' },
-    title: { en: 'Backend architecture at scale', es: 'Arquitectura backend a escala' },
-    desc: {
-      en: 'Took ownership of backend systems supporting production traffic.',
-      es: 'Responsabilidad sobre sistemas backend con tráfico en producción.',
-    },
-  },
-  {
-    year: '2024',
-    type: { en: 'Experiment', es: 'Experimento' },
+    type: { en: 'Internship', es: 'Pasantía' },
     title: {
-      en: 'AI-assisted engineering workflows',
-      es: 'Flujos de trabajo asistidos por IA',
+      en: 'Technical Support Intern — PUCE',
+      es: 'Pasante de Soporte Técnico — PUCE',
     },
     desc: {
-      en: 'Explored LLM tooling to accelerate development and review.',
-      es: 'Exploración de herramientas LLM para acelerar el desarrollo y la revisión.',
+      en: 'Provided hardware and software technical support at the Engineering Faculty (LTIC), preventive maintenance, and internal user incident resolution.',
+      es: 'Soporte técnico de hardware y software en la Facultad de Ingeniería (LTIC), mantenimiento preventivo de equipos y atención a incidencias de usuarios internos.',
     },
   },
   {
     year: '2025',
-    type: { en: 'Exploration', es: 'Exploración' },
+    type: { en: 'Degree', es: 'Título' },
     title: {
-      en: 'Distributed systems deep dive',
-      es: 'Inmersión en sistemas distribuidos',
+      en: 'Information Systems Engineer — PUCE',
+      es: 'Ingeniero en Sistemas de la Información — PUCE',
     },
     desc: {
-      en: 'Studied trade-offs in scalability, consistency, and fault tolerance.',
-      es: 'Estudio de compensaciones en escalabilidad, consistencia y tolerancia a fallos.',
+      en: 'Graduated from Pontificia Universidad Católica del Ecuador. Solid foundation in software architecture, databases, systems modeling, and modern engineering practices.',
+      es: 'Graduación en la Pontificia Universidad Católica del Ecuador. Sólida formación en arquitectura de software, bases de datos, modelado de sistemas y desarrollo.',
+    },
+  },
+  {
+    year: '2025',
+    type: { en: 'Freelance', es: 'Freelance' },
+    title: {
+      en: 'Full-Stack Developer — ProdeOptica',
+      es: 'Desarrollador Full-Stack — ProdeOptica',
+    },
+    desc: {
+      en: 'Engineered a centralized web platform for sales, inventory, patients, and clinical records using Next.js, Django REST Framework, JWT auth, and Tailwind CSS.',
+      es: 'Desarrollo de plataforma web integral para centralizar ventas, inventario, pacientes y fichas médicas con Next.js, Django REST Framework, JWT y Tailwind CSS.',
     },
   },
   {
     year: '2026',
-    type: { en: 'Ongoing', es: 'En curso' },
+    type: { en: 'Role', es: 'Rol' },
     title: {
-      en: 'AI infrastructure & data engineering',
-      es: 'Infraestructura de IA e ingeniería de datos',
+      en: 'Full-Stack Developer — MSLARCO',
+      es: 'Desarrollador Full-Stack — MSLARCO',
     },
     desc: {
-      en: 'Currently expanding into data pipelines and applied AI systems.',
-      es: 'Actualmente expandiéndome hacia pipelines de datos y sistemas de IA aplicada.',
+      en: 'Developing and maintaining web applications and administrative panels, integrating PHP, Laravel, Blade, React, and MySQL database management.',
+      es: 'Desarrollo y mantenimiento de soluciones web y paneles administrativos integrando PHP, Laravel, Blade, React y bases de datos MySQL.',
     },
   },
 ];

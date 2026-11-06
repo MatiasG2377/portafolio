@@ -1,0 +1,205 @@
+---
+import SectionHeader from './SectionHeader.astro';
+import { getContent, tr, type Lang } from '../i18n/ui';
+import { certifications } from '../data/certifications';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = getContent(lang);
+---
+
+<section id="certifications" class="section certifications-section">
+  <SectionHeader
+    id="certifications"
+    eyebrow={t.sec_certifications}
+    title={t.certifications_h}
+    subtitle={t.certifications_sub}
+  />
+
+  <div class="cert-grid">
+    {certifications.map((cert) => (
+      <article class:list={['cert-card', { 'in-progress': cert.status === 'in_progress' }]} data-reveal>
+        <div class="cert-header">
+          <span class="cert-issuer">{cert.issuer}</span>
+          <div class="cert-badges">
+            <span class="cert-date">{cert.date}</span>
+            <span class:list={['cert-status-badge', cert.status]}>
+              <span class="cert-status-dot"></span>
+              {tr(cert.badgeLabel, lang)}
+            </span>
+          </div>
+        </div>
+
+        <div class="cert-body">
+          <h3 class="cert-title">{tr(cert.title, lang)}</h3>
+          <p class="cert-desc">{tr(cert.desc, lang)}</p>
+
+          <div class="cert-skills">
+            {cert.skills.map((skill) => (
+              <span class="cert-skill-tag">{skill}</span>
+            ))}
+          </div>
+        </div>
+
+        {cert.credentialUrl && (
+          <div class="cert-footer">
+            <a href={cert.credentialUrl} target="_blank" rel="noopener noreferrer" class="cert-link">
+              Ver Credencial ↗
+            </a>
+          </div>
+        )}
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .cert-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+    gap: 24px;
+    padding-right: 8px;
+    margin-top: 12px;
+  }
+
+  .cert-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--color-cream);
+    border: var(--border);
+    box-shadow: 8px 8px 0 var(--color-ink);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .cert-card:hover {
+    box-shadow: 10px 10px 0 var(--color-accent);
+    transform: translateY(-2px);
+  }
+
+  .cert-card.in-progress {
+    border-top: 5px solid var(--color-accent);
+  }
+
+  .cert-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 18px;
+    background: var(--color-ink);
+    color: var(--color-cream);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .cert-issuer {
+    letter-spacing: 0.03em;
+    color: var(--color-cream);
+  }
+
+  .cert-badges {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cert-date {
+    opacity: 0.8;
+  }
+
+  .cert-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 7px;
+    border-radius: 2px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+  }
+
+  .cert-status-badge.completed {
+    background: #10B981;
+    color: #0A0A0A;
+  }
+
+  .cert-status-badge.in_progress {
+    background: var(--color-accent);
+    color: #FAFAF5;
+  }
+
+  .cert-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: brutBlink 1.4s infinite;
+  }
+
+  .cert-body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 22px 20px;
+    flex: 1;
+  }
+
+  .cert-title {
+    font-size: 18px;
+    font-weight: 800;
+    text-transform: uppercase;
+    line-height: 1.25;
+    color: var(--color-ink);
+  }
+
+  .cert-desc {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.55;
+    color: var(--color-ink);
+  }
+
+  .cert-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 8px;
+  }
+
+  .cert-skill-tag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 4px 9px;
+    background: var(--color-cream);
+    border: var(--border-thin);
+  }
+
+  .cert-footer {
+    padding: 12px 20px;
+    border-top: var(--border-thin);
+    background: rgba(10, 10, 10, 0.03);
+  }
+
+  .cert-link {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--color-ink);
+  }
+
+  .cert-link:hover {
+    text-decoration: underline;
+    color: var(--color-accent);
+  }
+</style>

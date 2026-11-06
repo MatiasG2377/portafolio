@@ -2,7 +2,7 @@
 import SectionHeader from './SectionHeader.astro';
 import { getContent, tr, type Lang } from '../i18n/ui';
 import { interestTags } from '../data/interests';
-import { site } from '../config';
+import InteractiveAvatar from './InteractiveAvatar.astro';
 
 interface Props {
   lang: Lang;
@@ -23,12 +23,8 @@ const t = getContent(lang);
     </div>
   </div>
 
-  <div class:list={['about-image', { stripes: !site.photo }]}>
-    {site.photo ? (
-      <img src={site.photo} alt={t.about_photo_alt} />
-    ) : (
-      <span class="about-image-caption">{t.about_photo_placeholder}</span>
-    )}
+  <div class="about-avatar-container">
+    <InteractiveAvatar alt={t.about_photo_alt} />
   </div>
 </section>
 
@@ -56,30 +52,12 @@ const t = getContent(lang);
     margin: -1px 0 0 -1px;
   }
 
-  .about-image {
+  .about-avatar-container {
     position: relative;
-    aspect-ratio: 4 / 5;
-    border: var(--border);
-    overflow: hidden;
-  }
-
-  .about-image img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .about-image-caption {
-    position: absolute;
-    left: 12px;
-    bottom: 12px;
-    background: var(--color-cream);
-    border: var(--border-thin);
-    padding: 4px 10px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   @media (max-width: 768px) {

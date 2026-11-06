@@ -3,7 +3,7 @@
  * en el eyebrow ("01 / About") como el orden del nav.
  * Reordenar aquí renumera todo sin tocar los componentes.
  */
-export const sectionOrder = ['about', 'focus', 'lab', 'projects', 'journey', 'contact'] as const;
+export const sectionOrder = ['about', 'focus', 'lab', 'projects', 'journey', 'certifications', 'contact'] as const;
 
 export type SectionId = (typeof sectionOrder)[number];
 
